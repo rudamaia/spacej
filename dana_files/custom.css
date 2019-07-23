@@ -1,0 +1,48 @@
+/**
+ * custom
+ * place custom style in this file
+ * add !important to the end if no effect
+ * e.g. color: #fff !important;
+ * --------------------------------------------------
+ *
+ */
+
+.is-black .site-bg__overlay {
+  position: absolute;
+  background-color: rgba(14, 3, 15, 0.98);
+  transition: 8s ease-in-out;
+}
+.is-black.is-red .site-bg__overlay {
+  background-color: rgba(1, 1, 1, 0.35);
+  transition: 8s ease-in-out;
+}
+.is-dark .site-bg__overlay {
+  position: absolute;
+  background-color: rgba(30, 31, 37, 0.45);
+}
+.btn-theme, .color, .animated i, .animated .about__item h3 {
+  transition: 4s ease-in-out;
+}
+.site-bg__overlay {
+  transition: 8s ease-in-out;
+}
+.site-header__logo a > * {
+  display: inline-block;
+  vertical-align: middle;
+}
+.modal-dialog, .modal-dialog h4 {
+  color: black;
+}
+.bt {
+    display: block;
+    background: rgba(255, 255, 255, 0.67);
+    height: 585px;
+    margin-top: -585px;
+    z-index: 99;
+    position: relative;
+    color: #6b6b6b;
+    font-weight: bold;
+    text-align: center;
+    line-height: 550px;
+    font-size: 24px;
+}

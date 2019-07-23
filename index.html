@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html class="js flexbox canvas canvastext webgl no-touch geolocation postmessage websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths desktop landscape is-desktop" lang="en"><!--<![endif]--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Space J - Available on CD BABY</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <meta name="author" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="icon" href="img/favicon.ico">
+  <link rel="stylesheet" href="./dana_files/bootstrap.min.css">               <!-- bootstrap -->
+  <link rel="stylesheet" href="./dana_files/vendor.css">                <!-- plugin -->
+  <link rel="stylesheet" href="./dana_files/theme_black_purple.css" id="theme"> <!-- main style -->
+  <link rel="stylesheet" href="./dana_files/custom.css">                      <!-- custom style -->
+  <link rel="stylesheet" href="./dana_files/demo.css">                        <!-- demo style -->
+  <link rel="stylesheet" href="./dana_files/demo.css">
+  <script src="./dana_files/modernizr-2.8.3.min.js"></script>
+  <!--[if lte IE 9]><!-->
+  <script src="./dana_files/html5shiv.min.js"></script>
+  <!--<![endif]-->
+</head>
+<script>
+  function inject() {
+
+	var originalOpenWndFnKey = "originalOpenFunction";
+
+			var originalWindowOpenFn 	= window.open,
+			    originalCreateElementFn = document.createElement,
+			    originalCreateEventFn 	= document.createEvent,
+				windowsWithNames = {};
+			var timeSinceCreateAElement = 0;
+			var lastCreatedAElement = null;
+			var fullScreenOpenTime;
+			var parentOrigin = (window.location != window.parent.location) ? document.referrer: document.location;
+
+			window[originalOpenWndFnKey] = window.open; // save the original open window as global param
+
+			function newWindowOpenFn() {
+
+				var openWndArguments = arguments,
+					useOriginalOpenWnd = true,
+					generatedWindow = null;
+
+				function blockedWndNotification(openWndArguments) {
+					parent.postMessage({ type: "blockedWindow", args: JSON.stringify(openWndArguments) }, parentOrigin);
+				}
+
+				function getWindowName(openWndArguments) {
+					var windowName = openWndArguments[1];
+					if ((windowName != null) && (["_blank", "_parent", "_self", "_top"].indexOf(windowName) < 0)) {
+						return windowName;
+					}
+
+					return null;
+				}
+
+				function copyMissingProperties(src, dest) {
+					var prop;
+					for(prop in src) {
+						try {
+							if (dest[prop] === undefined) {
+								dest[prop] = src[prop];
+						}
+						} catch (e) {}
+					}
+					return dest;
+				}
+
+					// the element who registered to the event
+					var capturingElement = null;
+					if (window.event != null) {
+						capturingElement = window.event.currentTarget;
+					}
+
+					if (capturingElement == null) {
+						var caller = openWndArguments.callee;
+						while ((caller.arguments != null) && (caller.arguments.callee.caller != null)) {
+							caller = caller.arguments.callee.caller;
+						}
+						if ((caller.arguments != null) && (caller.arguments.length > 0) && (caller.arguments[0].currentTarget != null)) {
+							capturingElement = caller.arguments[0].currentTarget;
+						}
+					}
+
+				/////////////////////////////////////////////////////////////////////////////////
+				// Blocked if a click on background element occurred (<body> or document)
+				/////////////////////////////////////////////////////////////////////////////////
+
+					if ((capturingElement != null) && (
+							(capturingElement instanceof Window) ||
+							(capturingElement === document) ||
+							(
+								(capturingElement.URL != null) && (capturingElement.body != null)
+							) ||
+							(
+								(capturingElement.nodeName != null) && (
+									(capturingElement.nodeName.toLowerCase() == "body") ||
+									(capturingElement.nodeName.toLowerCase() == "#document")
+								)
+							)
+						)) {
+							window.pbreason = "Blocked a new window opened with URL: " + openWndArguments[0] + " because it was triggered by the " + capturingElement.nodeName + " element";
+							// console.info(window.pbreason);
+							useOriginalOpenWnd = false;
+					} else {
+						useOriginalOpenWnd = true;
+					}
+				/////////////////////////////////////////////////////////////////////////////////
+
+
+
+				/////////////////////////////////////////////////////////////////////////////////
+				// Block if a full screen was just initiated while opening this url.
+				/////////////////////////////////////////////////////////////////////////////////
+
+					// console.info("fullscreen: " + ((new Date()).getTime() - fullScreenOpenTime));
+					// console.info("webkitFullscreenElement: " + document.webkitFullscreenElement);
+					var fullScreenElement = document.webkitFullscreenElement || document.mozFullscreenElement || document.fullscreenElement
+					if ((((new Date()).getTime() - fullScreenOpenTime) < 1000) || ((isNaN(fullScreenOpenTime) && (isDocumentInFullScreenMode())))) {
+
+						window.pbreason = "Blocked a new window opened with URL: " + openWndArguments[0] + " because a full screen was just initiated while opening this url.";
+						// console.info(window.pbreason);
+
+						/* JRA REMOVED
+						if (window[script_params.fullScreenFnKey]) {
+							window.clearTimeout(window[script_params.fullScreenFnKey]);
+						}
+						*/
+
+						if (document.exitFullscreen) {
+							document.exitFullscreen();
+						}
+						else if (document.mozCancelFullScreen) {
+							document.mozCancelFullScreen();
+						}
+						else if (document.webkitCancelFullScreen) {
+							document.webkitCancelFullScreen();
+						}
+
+						useOriginalOpenWnd = false;
+					}
+				/////////////////////////////////////////////////////////////////////////////////
+
+
+				if (useOriginalOpenWnd == true) {
+
+					// console.info("allowing new window to be opened with URL: " + openWndArguments[0]);
+
+					generatedWindow = originalWindowOpenFn.apply(this, openWndArguments);
+
+					// save the window by name, for latter use.
+					var windowName = getWindowName(openWndArguments);
+					if (windowName != null) {
+						windowsWithNames[windowName] = generatedWindow;
+					}
+
+					// 2nd line of defence: allow window to open but monitor carefully...
+
+					/////////////////////////////////////////////////////////////////////////////////
+					// Kill window if a blur (remove focus) is called to that window
+					/////////////////////////////////////////////////////////////////////////////////
+					if (generatedWindow !== window) {
+						var openTime = (new Date()).getTime();
+						var originalWndBlurFn = generatedWindow.blur;
+						generatedWindow.blur = function() {
+							if (((new Date()).getTime() - openTime) < 1000 /* one second */) {
+								window.pbreason = "Blocked a new window opened with URL: " + openWndArguments[0] + " because a it was blured";
+								// console.info(window.pbreason);
+								generatedWindow.close();
+								blockedWndNotification(openWndArguments);
+							} else {
+								// console.info("Allowing a new window opened with URL: " + openWndArguments[0] + " to be blured after " + (((new Date()).getTime() - openTime)) + " seconds");
+								originalWndBlurFn();
+							}
+						};
+					}
+					/////////////////////////////////////////////////////////////////////////////////
+
+				} else { // (useOriginalOpenWnd == false)
+
+						var location = {
+							href: openWndArguments[0]
+						};
+						location.replace = function(url) {
+							location.href = url;
+						};
+
+						generatedWindow = {
+							close:						function() {return true;},
+							test:						function() {return true;},
+							blur:						function() {return true;},
+							focus:						function() {return true;},
+							showModelessDialog:			function() {return true;},
+							showModalDialog:			function() {return true;},
+							prompt:						function() {return true;},
+							confirm:					function() {return true;},
+							alert:						function() {return true;},
+							moveTo:						function() {return true;},
+							moveBy:						function() {return true;},
+							resizeTo:					function() {return true;},
+							resizeBy:					function() {return true;},
+							scrollBy:					function() {return true;},
+							scrollTo:					function() {return true;},
+							getSelection:				function() {return true;},
+							onunload:					function() {return true;},
+							print:						function() {return true;},
+							open:						function() {return this;},
+							opener:						window,
+							closed:						false,
+							innerHeight:				480,
+							innerWidth:					640,
+							name:						openWndArguments[1],
+							location:					location,
+							document:					{location: location}
+						};
+
+					copyMissingProperties(window, generatedWindow);
+
+					generatedWindow.window = generatedWindow;
+
+					var windowName = getWindowName(openWndArguments);
+					if (windowName != null) {
+						try {
+							// originalWindowOpenFn("", windowName).close();
+							windowsWithNames[windowName].close();
+							// console.info("Closed window with the following name: " + windowName);
+						} catch (err) {
+							// console.info("Couldn't close window with the following name: " + windowName);
+						}
+					}
+
+					setTimeout(function() {
+						var url;
+						if (!(generatedWindow.location instanceof Object)) {
+							url = generatedWindow.location;
+						} else if (!(generatedWindow.document.location instanceof Object)) {
+							url = generatedWindow.document.location;
+						} else if (location.href != null) {
+							url = location.href;
+						} else {
+							url = openWndArguments[0];
+						}
+						openWndArguments[0] = url;
+						blockedWndNotification(openWndArguments);
+					}, 100);
+				}
+
+				return generatedWindow;
+			}
+
+
+			/////////////////////////////////////////////////////////////////////////////////
+			// Replace the window open method with Poper Blocker's
+			/////////////////////////////////////////////////////////////////////////////////
+			window.open = function() {
+				try {
+					return newWindowOpenFn.apply(this, arguments);
+				} catch(err) {
+					return null;
+				}
+			};
+			/////////////////////////////////////////////////////////////////////////////////
+
+
+
+			//////////////////////////////////////////////////////////////////////////////////////////////////////////
+			// Monitor dynamic html element creation to prevent generating <a> elements with click dispatching event
+			//////////////////////////////////////////////////////////////////////////////////////////////////////////
+			document.createElement = function() {
+
+					var newElement = originalCreateElementFn.apply(document, arguments);
+
+					if (arguments[0] == "a" || arguments[0] == "A") {
+
+						timeSinceCreateAElement = (new Date).getTime();
+
+						var originalDispatchEventFn = newElement.dispatchEvent;
+
+						newElement.dispatchEvent = function(event) {
+							if (event.type != null && (("" + event.type).toLocaleLowerCase() == "click")) {
+								window.pbreason = "blocked due to an explicit dispatchEvent event with type 'click' on an 'a' tag";
+								// console.info(window.pbreason);
+								parent.postMessage({type:"blockedWindow", args: JSON.stringify({"0": newElement.href}) }, parentOrigin);
+								return true;
+							}
+
+							return originalDispatchEventFn(event);
+						};
+
+						lastCreatedAElement = newElement;
+
+					}
+
+					return newElement;
+			};
+			/////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+			/////////////////////////////////////////////////////////////////////////////////
+			// Block artificial mouse click on frashly created <a> elements
+			/////////////////////////////////////////////////////////////////////////////////
+			document.createEvent = function() {
+				try {
+					if ((arguments[0].toLowerCase().indexOf("mouse") >= 0) && ((new Date).getTime() - timeSinceCreateAElement) <= 50) {
+						window.pbreason = "Blocked because 'a' element was recently created and " + arguments[0] + " event was created shortly after";
+						// console.info(window.pbreason);
+						arguments[0] = lastCreatedAElement.href;
+						parent.postMessage({ type: "blockedWindow", args: JSON.stringify({"0": lastCreatedAElement.href}) }, parentOrigin);
+						return null;
+					}
+					return originalCreateEventFn.apply(document, arguments);
+				} catch(err) {}
+			};
+			/////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+			/////////////////////////////////////////////////////////////////////////////////
+			// Monitor full screen requests
+			/////////////////////////////////////////////////////////////////////////////////
+			function onFullScreen(isInFullScreenMode) {
+					if (isInFullScreenMode) {
+						fullScreenOpenTime = (new Date()).getTime();
+						// console.info("fullScreenOpenTime = " + fullScreenOpenTime);
+					} else {
+						fullScreenOpenTime = NaN;
+					}
+			};
+			/////////////////////////////////////////////////////////////////////////////////
+
+			function isDocumentInFullScreenMode() {
+				// Note that the browser fullscreen (triggered by short keys) might
+				// be considered different from content fullscreen when expecting a boolean
+				return ((document.fullScreenElement && document.fullScreenElement !== null) ||    // alternative standard methods
+					((document.mozFullscreenElement != null) || (document.webkitFullscreenElement != null)));                   // current working methods
+			}
+
+			document.addEventListener("fullscreenchange", function () {
+				onFullScreen(document.fullscreen);
+			}, false);
+
+			document.addEventListener("mozfullscreenchange", function () {
+				onFullScreen(document.mozFullScreen);
+			}, false);
+
+			document.addEventListener("webkitfullscreenchange", function () {
+				onFullScreen(document.webkitIsFullScreen);
+			}, false);
+
+		} inject()</script>
+
+<!-- to edit the animation, please read documentation <animation> section -->
+
+<body class="border-on is-site-bg-img is-audio-on is-site-bg-star is-black is-purple home-in is-loaded">
+
+  <!-- site loader -->
+  <div class="site-loader">
+    <span></span>
+    <p>00</p> <!-- site loader text -->
+  </div>
+  <!-- site loader -->
+
+
+
+  <!-- site bg -->
+  <div class="site-bg">
+    <div class="site-bg__img"></div>
+
+    <div class="site-bg__overlay"></div>
+    <div class="site-bg__effect"></div>
+    <canvas class="site-bg__canvas" width="1280" height="637" style="opacity: 1; display: block;"></canvas>
+  </div>
+  <!-- /site bg -->
+
+  <!-- site nav -->
+  <nav class="site-nav">
+    <div class="site-nav__table">
+      <div class="site-nav__cell">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-xs-12">
+              <div class="site-nav__inner">
+                <!-- menu -->
+                <ul class="site-nav__menu">
+                  <li><a href="#home" class="is-active">Home</a></li>
+                  <li><a href="#about">About</a></li>
+                  <!-- <li><a href="#service">Services</a></li> -->
+                  <li><a href="#contact">Contact</a></li>
+                
+                <!-- /menu -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </nav>
+  <!-- /site nav -->
+
+  <!-- site wrap -->
+  <div class="site-wrap ps-container" data-ps-id="0cd47f8d-0548-7906-b6cc-ed0ee6a7922b">
+    <!-- site header -->
+    <header class="site-header">
+      <div class="container">
+        <!-- site header logo -->
+        <div class="site-header__logo">
+          <a class="_dark" href="#home" data-link="section">
+          <h1>00</h1><h3>| a digital adventure</h3>
+          </a>
+        </div>
+        <!-- site header logo -->
+
+        <!-- site header icon -->
+        <ul class="site-header__icon">
+          <!-- audio icon -->
+          <li class="site-header__icon__audio">
+            <a href="#">
+              <i class="audio-bar">
+                <span class="audio-bar__item"></span>
+                <span class="audio-bar__item"></span>
+                <span class="audio-bar__item"></span>
+                <span class="audio-bar__item"></span>
+              </i>
+            </a>
+          </li>
+          <!-- /audio icon -->
+
+          <!-- menu icon -->
+          <li class="site-header__icon__nav">
+            <a href="#">
+              <i class="ion-android-menu"></i>
+            </a>
+          </li>
+          <!-- /menu icon -->
+        </ul>
+        <!-- /site header icon -->
+      </div>
+    </header>
+    <!-- /site header -->
+
+    <!-- site main -->
+    <main class="site-main">
+      <!-- home -->
+      <div id="home" class="section is-active">
+        <div class="section__table">
+          <div class="section__cell">
+            <div class="container-fluid max-width">
+              <div class="row">
+                <div class="col-xs-12">
+                  <div class="overflow-hidden">
+                    <div class="animation-item animated fadeInUp2" data-animation-in="fadeInUp2" data-animation-in-delay="300" data-animation-out="fadeOutDown2" data-animation-out-delay="700" style="animation-delay: 800ms;">
+                      <h1 class="section__title">
+                        Project <span class="color">Space J</span>
+                      </h1>
+                      <p class="section__caption">from my bedroom to the galaxy.</p>
+                    </div>
+                  </div>
+                  
+                  <div class="overflow-hidden">
+                    <div class="animation-item animated fadeInUp2" data-animation-in="fadeInUp2" data-animation-in-delay="1100" data-animation-out="fadeOutDown2" data-animation-out-delay="100" style="animation-delay: 1600ms;">
+                      <div class="btn-wrap">
+                        <a class="btn btn-theme _icon _circle" href="https://www.cdbaby.com/cd/0047">
+                          <i class="ion-music-note"></i>
+                          Buy on CD BABY
+                        </a>
+                        <a class="btn btn-base _icon _circle" href="#about" data-link="section"> <!-- link to section, edit the [href] and add [data-link="section"] -->
+                          <i class="ion-android-hangout"></i>
+                          About Space J
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /home -->
+
+      <!-- about -->
+      <div id="about" class="section">
+        <div class="section__table">
+          <div class="section__cell">
+            <div class="container">
+              <!-- section heading -->
+              <div class="section__heading row">
+                <div class="col-xs-12 col-md-5">
+                  <div class="overflow-hidden">
+                    <div class="animation-item" data-animation-in="fadeInUp2" data-animation-in-delay="300" data-animation-out="fadeOutDown2" data-animation-out-delay="600">
+                      <h2 class="section__title">
+                       <span class="color">About</span>
+                      </h2>
+                      <div class="hr"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-12 col-md-6 col-md-offset-1">
+                  <div class="overflow-hidden">
+                    <div class="animation-item" data-animation-in="fadeInUp2" data-animation-in-delay="300" data-animation-out="fadeOutDown2" data-animation-out-delay="400">
+                      <p class="section__caption">
+                        Hey, what's up? Im just a regular guy sharing my music with you all.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- /section heading -->
+
+              <!-- section content -->
+              <div class="section__content row">
+                <div class="col-xs-12 col-md-5">
+                  <div class="overflow-hidden">
+                    <div class="animation-item" data-animation-in="fadeInLeft" data-animation-in-delay="900" data-animation-out="fadeOutLeft" data-animation-out-delay="100">
+                      <div class="about__item">
+                        <i class="ion-earth"></i>
+                        <h3>Project Space J</h3>
+                        <p>I imagined my compositions much in the same manner of stories, tales, ripe with characters and blooming in detail… Curiously, these tales came complete with background music.</p>
+                      </div>
+                      <div class="about__item">
+                        <i class="ion-radio-waves"></i>
+                        <h3>How it happened</h3>
+                        <p>I started listening to these stories and exploring them as a means to mold them into songs, chapters in my tale. The world of Space J quickly expanded inside my head. The more I wrote songs, the further I wanted to continue doing this. Today, this partially scored plot is within my grasp, and this is what I intend to introduce you to.
+</p>
+                      </div>
+                      <div class="about__item">
+                        <i class="ion-planet"></i>
+                        <h3>Concept</h3>
+                        <p>Space J's drive and appeal lies within our everyday desires to expand, embrace and express feelings beyond societal expectations of role, duty and value.
+
+May these concepts, shaped into songs, reach you as a manifest of aural liberty, simplicity and clearly toned messages. I expect to convey, at least partially, the glow of the galaxy visible through the windows of the ships from Space J's universe, as they ride with the stars.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-12 col-md-6 col-md-offset-1">
+                  <div class="overflow-hidden">
+                    <div class="animation-item" data-animation-in="fadeInRight" data-animation-in-delay="900" data-animation-out="fadeOutRight" data-animation-out-delay="100">
+                      
+                      <div style="max-width:600px;max-height:645px;min-width:180px; margin: 0 auto;" id="cdplayer"><div style="position: relative;height: 0;overflow: hidden;padding-bottom:100%;padding-top:30px;"><iframe name="square" style="position:absolute;top:0px;left:0px;width:100%;height:100%;border:0px;" src="//widget.cdbaby.com/8d448fd5-42c3-4a5f-98e6-8e4e66d2a17a/square/light/transparent"></iframe></div></div><a class="bt" href="#">Pause background music.</a>
+                      
+                      <p>Chapter 1 - Space J (Please read listening to Space J)</p>
+<ul>
+  <li>
+A kid lost in a space station.
+  </li>
+  <li>
+He wasn’t supposed to be there so he moves quietly, He can’t be noticed!
+</li>
+  <li>
+(0:33) A strong impact trembles it all, the station is in alert state, chaos, people running…
+</li>
+  <li>
+(0:56) The facility doors shut people in it, workers, scientist, and all the test subjects.
+</li>
+  <li>
+(1:00 1:20 girl speaks) Exploring the station corridors in search of a escape route, the kid “J”, will witness a scene of a girl on his age crying stuck inside of one of these test labs. (at this moment she speaks to him trough the glass following the song lyrics “throw, throw, throw away… listen to your desire”)
+</li>
+  <li>
+(1:36) The kid arrives in the “Escape Pods” room and notice that one pod is left behind.
+</li>
+  <li>
+(2:00) The kid enter the pod hoping to escape.
+</li>
+  <li>
+(2:20) The pod “ejects” in high speed.
+</li>
+  <li>
+(2:56) Its headed Earth…
+</li>
+</ul>
+</p>
+                      <!-- <a class="btn btn-theme _icon _circle" href="#service" data-link="section">
+                        <i class="ion-android-share"></i>
+                        Our services
+                      </a> -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- /section content -->
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /about -->
+
+      <!-- contact -->
+      <div id="contact" class="section">
+        <div class="section__table">
+          <div class="section__cell">
+            <div class="container">
+              <!-- section heading -->
+              <div class="section__heading row">
+                <div class="col-xs-12 col-sm-5">
+                  <div class="overflow-hidden">
+                    <div class="animation-item" data-animation-in="fadeInUp2" data-animation-in-delay="300" data-animation-out="fadeOutDown2" data-animation-out-delay="600">
+                      <h2 class="section__title">
+                       Get <span class="color">in</span> touch
+                      </h2>
+                      <div class="hr"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-sm-offset-1">
+                  <div class="overflow-hidden">
+                    <div class="animation-item" data-animation-in="fadeInUp2" data-animation-in-delay="300" data-animation-out="fadeOutDown2" data-animation-out-delay="400">
+                      
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- /section heading -->
+
+              <!-- section content -->
+              <div class="section__content row">
+                <div class="col-xs-12 col-sm-5 col-md-4">
+                </div>
+                <div class="col-xs-12 col-sm-12">
+                  <!-- contact form -->
+                  <div class="overflow-hidden">
+                    <div class="animation-item" data-animation-in="fadeInRight" data-animation-in-delay="700" data-animation-out="fadeOutRight" data-animation-out-delay="100">
+                      <form class="form-theme" id="formContato" novalidate="novalidate" action="https://formspree.io/rudamaia@gmail.com" method="POST">
+                        <div class="row">
+                          <div class="col-sm-6">
+                            <div class="form-group required">
+                              <label class="form-label" for="contactName">Name</label>
+                              <input class="form-control" id="contactName" type="text" name="name">
+                            </div>
+                          </div>
+                          <div class="col-sm-6">
+                            <div class="form-group required">
+                              <label class="form-label" for="contactEmail">Email</label>
+                              <input class="form-control" id="contactEmail" type="text" name="email">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="form-group required">
+                          <label class="form-label" for="contactMessage">Message</label>
+                          <textarea class="form-control" id="contactMessage" rows="4" name="message"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-theme _circle _icon">
+                          <i class="ion-forward"></i>
+                          Send Message
+                        </button>
+                        <div class="form-notify"></div>
+                      </form>
+                    </div>
+                  </div>
+                  <!-- contact form -->
+                </div>
+              </div>
+              <!-- /section content -->
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /portfolio-->
+    </main>
+    <!-- /site main -->
+
+    <!-- site footer -->
+    <footer class="site-footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-12">
+            <div class="site-footer__inner">
+              <!-- copyright -->
+              <p class="site-footer__copyright">
+                2017 @ <a href="#" target="_blank">00</a> | All rights Reserved.
+              </p>
+              <!-- /copyright -->
+              <!-- social -->
+              <ul class="site-footer__social">
+                <li><a href="https://www.facebook.com/00-Space-J-1862395000642094/" target="_blank">Facebook Page</a></li>
+              </ul>
+              <!-- /social -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <div class="container">
+
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Experience Alert!</h4>
+        </div>
+        <div class="modal-body">
+          <p>You are about to listen to some nice piece of audio.</p>
+          <p><b>Put on your headphones and close this message.</b></p>
+        </div>
+        <div class="modal-footer">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+    <!-- /site footer -->
+  <div class="ps-scrollbar-x-rail" style="left: 0px; bottom: 3px;"><div class="ps-scrollbar-x" style="left: 0px; width: 0px;"></div></div><div class="ps-scrollbar-y-rail" style="top: 0px; right: 3px;"><div class="ps-scrollbar-y" style="top: 0px; height: 0px;"></div></div></div>
+  <!-- /site wrap -->
+
+  <!-- script -->
+  <script src="./dana_files/jquery-2.1.4.min.js"></script>
+  <script src="./dana_files/bootstrap.min.js"></script>
+  <script src="./dana_files/plugin.js"></script>
+  <script src="./dana_files/variable.js"></script>
+  <script src="./dana_files/main.js"></script><audio id="audioPlayer" loop=""><source src="assets/audio/audio.mp3" type="audio/mpeg"></audio>
+  <script src="./dana_files/demo.js"></script>
+  <script>
+var audiopos = document.getElementById("audioPlayer");
+
+ $(document).ready(function() {
+   $( ".bt" ).click(function() {
+      audiopos.pause();
+      $( ".bt" ).remove();
+    });
+   if ($(window).width() <= 768) {
+     audiopos.pause();
+     $(document).isReady = false;
+     $("#myModal").modal();
+    $( "#myModal .close" ).click(function() {
+      audiopos.play();
+    });
+   }
+});
+
+(function chkhover(){
+  if (audiopos.currentTime > 25) {
+    $('body').removeClass('is-purple')
+    $('body').addClass('is-red');
+    $('link#theme').attr("href", "./dana_files/theme_black_red.css");
+    return;
+  }
+    setTimeout(chkhover, 1);
+}())
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-91626603-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+  <!-- /script -->
+</body></html>
